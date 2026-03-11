@@ -1,11 +1,12 @@
-const express = require("express");
-const cors = require("cors");
 const { AccessToken } = require("livekit-server-sdk");
 
-const app = express();
-app.use(cors());
+module.exports = async function handler(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-app.get("/api/token", async (req, res) => {
+    if (req.method === "OPTIONS") return res.status(200).end();
+
     try {
         const { roomName, participantName } = req.query;
 
@@ -33,13 +34,10 @@ app.get("/api/token", async (req, res) => {
         });
 
         const jwt = await token.toJwt();
-        return res.json({ token: jwt });
+        return res.status(200).json({ token: jwt });
 
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: err.message });
     }
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+};
